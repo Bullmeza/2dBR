@@ -1,21 +1,24 @@
-package render;
+package generate;
 
 import java.util.HashMap;
 
-import render.Camera;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import generate.Tile;
+import render.Camera;
 import render.Model;
+import render.Shader;
 import render.Texture;
-import render.Tile;
 
 
 public class TileRender {
-    private HashMap<String, Texture> tileTextures = new HashMap<String, Texture>();
+    private HashMap<String, Texture> tileTextures;
     private Model model;
 
 
     public TileRender() {
+        tileTextures = new HashMap<String, Texture>();
+
         float[] vertices = new float[]{
                 -0.5f, 0.5f, 0,
                 0.5f, 0.5f, 0,
