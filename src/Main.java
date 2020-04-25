@@ -1,9 +1,7 @@
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL;
-import render.Model;
-import render.Shader;
-import render.Texture;
+import render.*;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -15,6 +13,9 @@ public class Main {
     static long window;
     static int width = 640;
     static int height = 480;
+
+    static int map_width = 5;
+    static int map_height = 5;
 
 
     public Main() {
@@ -32,34 +33,14 @@ public class Main {
 
         Camera camera = new Camera(width,height);
         glEnable(GL_TEXTURE_2D);
+        TileRender tiles = new TileRender();
 
-        float[] vertices = new float[]{
-                -0.5f, 0.5f, 0,
-                0.5f, 0.5f, 0,
-                0.5f, -0.5f, 0,
-                -0.5f, -0.5f, 0
-        };
 
-        float[] texture = new float[]{
-                0, 0,
-                1, 0,
-                1, 1,
-                0, 1
-        };
-
-        int[] indices = new int[]{
-                0, 1, 2,
-                2, 3, 0
-        };
-
-        Model model = new Model(vertices, texture, indices);
+//        Model model = new Model(vertices, texture, indices);
         Shader shader = new Shader("shader");
 
-        Texture grass = new Texture("./res/grass.png");
-
-
         Matrix4f scale = new Matrix4f()
-                .translate(new Vector3f(0,0,0))
+                .translate(new Vector3f(-map_width * 64/2,-map_height *64 /2,0))
                 .scale(64);
 
         Matrix4f target = new Matrix4f();
@@ -98,10 +79,10 @@ public class Main {
                     camera.setPosition(new Vector3f(0,-100,0));
                 }
                 if (glfwGetKey(window, GLFW_KEY_D) == 1) {
-                    camera.setPosition(new Vector3f(100,0,0));
+                    camera.setPosition(new Vector3f(-100,0,0));
                 }
                 if (glfwGetKey(window, GLFW_KEY_A) == 1) {
-                    camera.setPosition(new Vector3f(-100,0,0));
+                    camera.setPosition(new Vector3f(100,0,0));
                 }
 
                 if (glfwGetMouseButton(window, 0) == 1) {
@@ -120,11 +101,17 @@ public class Main {
                 glClear(GL_COLOR_BUFFER_BIT);
 
 
-                shader.bind();
-                shader.setUniform("sampler",0);
-                shader.setUniform("projection", camera.getProjection().mul(target));
-                model.render();
-                grass.bind(1);
+//                shader.bind();
+//                shader.setUniform("sampler",0);
+//                shader.setUniform("projection", camera.getProjection().mul(target));
+
+
+                for(int x = 0; x < map_height; x++) {
+                    for (int y = 0; y < map_width; y++) {
+                        tiles.renderTile((byte) 0, x, y, shader, scale, camera);
+                    }
+                }
+
 
                 glEnd();
                 glfwSwapBuffers(window);

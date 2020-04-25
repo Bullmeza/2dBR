@@ -2,7 +2,7 @@ package render;
 
 import java.util.HashMap;
 
-import javafx.scene.Camera;
+import render.Camera;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import render.Model;
@@ -11,11 +11,11 @@ import render.Tile;
 
 
 public class TileRender {
-    private HashMap<String, Texture> tileTextures;
+    private HashMap<String, Texture> tileTextures = new HashMap<String, Texture>();
     private Model model;
 
 
-    public TileRender(){
+    public TileRender() {
         float[] vertices = new float[]{
                 -0.5f, 0.5f, 0,
                 0.5f, 0.5f, 0,
@@ -36,28 +36,36 @@ public class TileRender {
         };
         model = new Model(vertices, texture, indices);
 
-        for(int i = 0; i < Tile.tiles.length; i++){
-            if (!tileTextures.containsKey(Tile.tiles[i].getTexture())) {
-                String tex = Tile.tiles[i].getTexture();
-                tileTextures.put(tex, new Texture(tex + ".png"));
+        for (int i = 0; i < Tile.tiles.length; i++) {
+            if(Tile.tiles[i] != null){
+                if (!tileTextures.containsKey(Tile.tiles[i].getTexture())) {
+                    String tex = Tile.tiles[i].getTexture();
+                    tileTextures.put(tex, new Texture(tex + ".png"));
+                }
             }
         }
     }
+
     public void renderTile(byte id, int x, int y, Shader shader, Matrix4f world, Camera cam) {
         shader.bind();
-        if (tileTextures.containsKey(Tile.tiles[id].getTexture())){
-            tileTextures.get(Tile.tiles[id].getTexture()).bind(0);
+        if(Tile.tiles[id] != null){
+            if (tileTextures.containsKey(Tile.tiles[id].getTexture())) {
+                tileTextures.get(Tile.tiles[id].getTexture()).bind(0);
+            }
         }
 
-        Matrix4f tile_pos = new Matrix4f().translate(new Vector3f(x * 2, y * 2, 0));
+
+        Matrix4f tile_pos = new Matrix4f().translate(new Vector3f(x, y, 0));
         Matrix4f target = new Matrix4f();
 
         cam.getProjection().mul(world, target);
         target.mul(tile_pos);
 
-
         shader.setUniform("sampler", 0);
         shader.setUniform("projection", target);
+
+
+        model.render();
     }
 
 }
