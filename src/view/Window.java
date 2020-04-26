@@ -50,10 +50,14 @@ public class Window {
     public long getWindow() {
         return window;
     }
-    public Input getInput(){
+
+    public Input getInput() {
         return input;
     }
-    public void close(){
+
+    public void close() {
         glfwSetWindowShouldClose(window, true);
     }
+
+
 }

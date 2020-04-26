@@ -1,8 +1,11 @@
+import collision.AABBCollision;
 import entity.Player;
 import generate.Tile;
 import generate.TileRender;
 import generate.World;
 import multiplayer.MazeReq;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL;
 import render.*;
 import view.Camera;
@@ -17,9 +20,10 @@ import static org.lwjgl.opengl.GL11.*;
 public class Main {
 
 
+    public Main() {
 
 
-    public Main(){
+
         if (!glfwInit()) {
             System.err.println("Failed 2 create");
             System.exit(1);
@@ -33,7 +37,7 @@ public class Main {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        Camera camera = new Camera(window.getWidth(),window.getHeight());
+        Camera camera = new Camera(window.getWidth(), window.getHeight());
         TileRender tiles = new TileRender();
         Shader shader = new Shader("shader");
         World world = new World();
@@ -41,9 +45,7 @@ public class Main {
         Player player = new Player();
 
 
-
-
-        double frame_cap = 1.0 /60.0;
+        double frame_cap = 1.0 / 60.0;
         double frame_time = 0;
         int frames = 0;
         double time = FPS.getTime();
@@ -67,8 +69,10 @@ public class Main {
 
 
                 if (window.getInput().isKeyDown(GLFW_KEY_ESCAPE)) {
-                  window.close();
+                    window.close();
                 }
+
+
 
 
                 //LEFT CLICK
@@ -80,37 +84,38 @@ public class Main {
                 }
 
 
-                player.update((float)frame_cap, window, camera, world);
+                player.update((float) frame_cap, window, camera, world);
                 //CHECK KEYS
                 glfwPollEvents();
 
-                if(frame_time >= 1.0){
+                if (frame_time >= 1.0) {
                     frame_time = 0;
                     System.out.println("fps:" + frames);
                     frames = 0;
                 }
             }
-            if(can_render){
+            if (can_render) {
 
 
                 glClear(GL_COLOR_BUFFER_BIT);
 
-                world.render(tiles,shader,camera);
-                if(!maze_loaded){
+                world.render(tiles, shader, camera);
+                if (!maze_loaded) {
                     mazeReq.createMap(world.getWidth());
 
                     int[][] maze = mazeReq.getMap();
 
-                    for(int x = 0; x < maze.length; x++){
-                        for(int y = 0; y < maze[0].length; y++){
-                            if(maze[x][y] == 1){
-                                world.setTile(Tile.wall,x,y);
+                    for (int x = 0; x < maze.length; x++) {
+                        for (int y = 0; y < maze[0].length; y++) {
+                            if (maze[x][y] == 1) {
+                                world.setTile(Tile.wall, x, y);
                             }
                         }
                     }
                     maze_loaded = true;
                 }
-                player.render(shader,camera);
+
+                    player.render(shader, camera);
 
 
                 glEnd();

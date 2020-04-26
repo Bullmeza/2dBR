@@ -2,17 +2,21 @@ package generate;
 
 public class Tile {
     public static Tile tiles[] = new Tile[16];
-    public static final Tile grass = new Tile((byte)0, "grass");
-    public static final Tile wall = new Tile((byte)1, "wall");
-    public static final Tile rock = new Tile((byte)2, "rock");
+    public static final Tile grass = new Tile((byte) 0, "grass");
+    public static final Tile wall = new Tile((byte) 1, "wall").setSolid();
+    public static final Tile rock = new Tile((byte) 2, "rock");
 
     private byte id;
     private String texture;
+    private boolean solid;
 
     public Tile(byte id, String texture) {
         this.id = id;
         this.texture = texture;
-        if (tiles[id] != null) {throw new IllegalStateException("Tiles at [" + id + "] is already being used!");}
+        this.solid = false;
+        if (tiles[id] != null) {
+            throw new IllegalStateException("Tiles at [" + id + "] is already being used!");
+        }
         tiles[id] = this;
     }
 
@@ -23,5 +27,14 @@ public class Tile {
 
     public String getTexture() {
         return texture;
+    }
+
+    public Tile setSolid() {
+        this.solid = true;
+        return this;
+    }
+
+    public boolean isSolid() {
+        return solid;
     }
 }

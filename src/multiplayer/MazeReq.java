@@ -62,9 +62,11 @@ public class MazeReq {
 
         }
         catch(IOException e) {
+            System.out.println("SERVERS ARE DOWN");
             System.exit(1);
         }
         catch(InterruptedException x){
+            System.out.println("SERVERS ARE DOWN");
             System.exit(1);
 
         }
