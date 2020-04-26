@@ -2,7 +2,7 @@ package generate;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import render.Camera;
+import view.Camera;
 import render.Shader;
 
 public class World {
@@ -14,9 +14,9 @@ public class World {
     private Matrix4f world;
 
     public World(){
-        width=10;
-        height=10;
-        scale=48;
+        width=50;
+        height=width;
+        scale=64;
 
         tiles = new byte[width*height];
 
@@ -35,4 +35,23 @@ public class World {
         tiles[x + y * width] = tile.getId();
     }
 
+    public int getWidth(){
+        return width;
+    }
+    public int getHeight(){
+        return height;
+    }
+
+    public Tile getTile(int x, int y) {
+        try {
+            return Tile.tiles[tiles[x + y * width]];
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            return null;
+        }
+    }
+
+    public float getScale() {
+        return scale;
+    }
 }

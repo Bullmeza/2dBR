@@ -8,11 +8,32 @@ import java.net.http.HttpResponse;
 
 public class MazeReq {
 
-
-    public static int[][] get()  {
-
+    public static void createMap(int size){
         try{
-            String url = "http://localhost:8888/map";
+            String url = "http://localhost:8888/createMap?size=";
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url + size))
+                    .build();
+
+            HttpResponse<String> response = client.send(request,
+                    HttpResponse.BodyHandlers.ofString());
+        }
+        catch(IOException e) {
+            System.exit(1);
+        }
+        catch(InterruptedException x){
+            System.exit(1);
+
+        }
+    }
+
+
+
+    public static int[][] getMap()  {
+        try{
+            String url = "http://localhost:8888/getMap";
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
@@ -47,8 +68,6 @@ public class MazeReq {
             System.exit(1);
 
         }
-
         return null;
-
     }
 }

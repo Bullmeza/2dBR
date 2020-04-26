@@ -4,8 +4,7 @@ import java.util.HashMap;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import generate.Tile;
-import render.Camera;
+import view.Camera;
 import render.Model;
 import render.Shader;
 import render.Texture;
@@ -20,10 +19,10 @@ public class TileRender {
         tileTextures = new HashMap<String, Texture>();
 
         float[] vertices = new float[]{
-                -0.5f, 0.5f, 0,
-                0.5f, 0.5f, 0,
-                0.5f, -0.5f, 0,
-                -0.5f, -0.5f, 0
+                -1f, 1f, 0,
+                1f, 1f, 0,
+                1f, -1f, 0,
+                -1f, -1f, 0
         };
 
         float[] texture = new float[]{
@@ -58,7 +57,7 @@ public class TileRender {
         }
 
 
-        Matrix4f tile_pos = new Matrix4f().translate(new Vector3f(x, y, 0));
+        Matrix4f tile_pos = new Matrix4f().translate(new Vector3f(x*2, y*2, 0));
         Matrix4f target = new Matrix4f();
 
         cam.getProjection().mul(world, target);

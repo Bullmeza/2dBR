@@ -1,12 +1,14 @@
+import entity.Player;
 import generate.Tile;
 import generate.TileRender;
 import generate.World;
 import multiplayer.MazeReq;
-import org.joml.Vector3f;
 import org.lwjgl.opengl.GL;
 import render.*;
+import view.Camera;
+import view.Window;
+import render.FPS;
 
-import java.io.IOException;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -14,10 +16,6 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Main {
 
-    long window;
-    int width = 640;
-    int height = 480;
-    int speed = 3;
 
 
 
@@ -28,19 +26,19 @@ public class Main {
         }
 
 
-        window = glfwCreateWindow(width, height, "Game", 0, 0);
-        glfwShowWindow(window);
-        glfwMakeContextCurrent(window);
-        glfwSetWindowAttrib(window, GLFW_RESIZABLE, GL_FALSE);
+        Window window = new Window();
+        window.createWindow("8-Bit BR");
         GL.createCapabilities();
         glEnable(GL_TEXTURE_2D);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
-        Camera camera = new Camera(width,height);
+        Camera camera = new Camera(window.getWidth(),window.getHeight());
         TileRender tiles = new TileRender();
         Shader shader = new Shader("shader");
         World world = new World();
         MazeReq mazeReq = new MazeReq();
+        Player player = new Player();
 
 
 
@@ -52,7 +50,7 @@ public class Main {
         double unprocessed = 0;
         boolean maze_loaded = false;
 
-        while (!glfwWindowShouldClose(window)) {
+        while (!window.shouldClose()) {
 
 
             boolean can_render = false;
@@ -67,32 +65,28 @@ public class Main {
                 unprocessed -= frame_cap;
                 can_render = true;
 
+
+                if (window.getInput().isKeyDown(GLFW_KEY_ESCAPE)) {
+                  window.close();
+                }
+
+
+                //LEFT CLICK
+                if (window.getInput().isMouseButtonDown(0)) {
+                }
+
+                //RIGHT CLICK
+                if (window.getInput().isMouseButtonDown(1)) {
+                }
+
+
+                player.update((float)frame_cap, window, camera, world);
+                //CHECK KEYS
                 glfwPollEvents();
-                if (glfwGetKey(window, GLFW_KEY_ESCAPE) == 1) {
-                    glfwSetWindowShouldClose(window, true);
-                }
-                if (glfwGetKey(window, GLFW_KEY_W) == 1) {
-                    camera.getPosition().sub(new Vector3f(0,speed,0));
-                }
-                if (glfwGetKey(window, GLFW_KEY_S) == 1) {
-                    camera.getPosition().sub(new Vector3f(0,-speed,0));
-                }
-                if (glfwGetKey(window, GLFW_KEY_D) == 1) {
-                    camera.getPosition().sub(new Vector3f(speed,0,0));
-                }
-                if (glfwGetKey(window, GLFW_KEY_A) == 1) {
-                    camera.getPosition().sub(new Vector3f(-speed,0,0));
-                }
 
-                if (glfwGetMouseButton(window, 0) == 1) {
-                }
-
-                if (glfwGetMouseButton(window, 1) == 1) {
-
-                }
                 if(frame_time >= 1.0){
                     frame_time = 0;
-                    System.out.println("FPS:" + frames);
+                    System.out.println("fps:" + frames);
                     frames = 0;
                 }
             }
@@ -102,10 +96,10 @@ public class Main {
                 glClear(GL_COLOR_BUFFER_BIT);
 
                 world.render(tiles,shader,camera);
-
-
                 if(!maze_loaded){
-                    int[][] maze = mazeReq.get();
+                    mazeReq.createMap(world.getWidth());
+
+                    int[][] maze = mazeReq.getMap();
 
                     for(int x = 0; x < maze.length; x++){
                         for(int y = 0; y < maze[0].length; y++){
@@ -116,11 +110,11 @@ public class Main {
                     }
                     maze_loaded = true;
                 }
+                player.render(shader,camera);
 
 
                 glEnd();
-                glfwSwapBuffers(window);
-
+                window.swapBuffers();
                 frames++;
             }
         }
