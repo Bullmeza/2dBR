@@ -21,9 +21,11 @@ public class MazeReq {
                     HttpResponse.BodyHandlers.ofString());
         }
         catch(IOException e) {
+            System.out.println("SERVERS DOWN");
             System.exit(1);
         }
         catch(InterruptedException x){
+            System.out.println("SERVERS DOWN");
             System.exit(1);
 
         }

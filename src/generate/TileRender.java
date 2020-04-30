@@ -9,6 +9,8 @@ import render.Model;
 import render.Shader;
 import render.Texture;
 
+import static org.lwjgl.opengl.GL11.*;
+
 
 public class TileRender {
     private HashMap<String, Texture> tileTextures;
@@ -65,7 +67,6 @@ public class TileRender {
 
         shader.setUniform("sampler", 0);
         shader.setUniform("projection", target);
-
 
         model.render();
     }

@@ -1,4 +1,4 @@
-import collision.AABBCollision;
+import collision.AABB;
 import entity.Player;
 import generate.Tile;
 import generate.TileRender;
@@ -36,6 +36,7 @@ public class Main {
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
         Camera camera = new Camera(window.getWidth(), window.getHeight());
         TileRender tiles = new TileRender();
@@ -90,7 +91,7 @@ public class Main {
 
                 if (frame_time >= 1.0) {
                     frame_time = 0;
-                    System.out.println("fps:" + frames);
+//                    System.out.println("fps:" + frames);
                     frames = 0;
                 }
             }
@@ -102,6 +103,8 @@ public class Main {
                 world.render(tiles, shader, camera);
                 if (!maze_loaded) {
                     mazeReq.createMap(world.getWidth());
+
+
 
                     int[][] maze = mazeReq.getMap();
 

@@ -1,6 +1,7 @@
 package entity;
 
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class Transform {
@@ -16,5 +17,8 @@ public class Transform {
         target.translate(pos);
         target.scale(scale);
         return target;
+    }
+    public Vector3f getScale(){
+        return scale;
     }
 }

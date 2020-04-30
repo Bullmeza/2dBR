@@ -1,7 +1,8 @@
 package view;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.GL_FALSE;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.glColor3f;
 
 
 public class Window {
@@ -23,7 +24,11 @@ public class Window {
         glfwSetWindowAttrib(window, GLFW_RESIZABLE, GL_FALSE);
         glfwMakeContextCurrent(window);
 
+
+
+
         input = new Input(window);
+
     }
 
     public boolean shouldClose() {

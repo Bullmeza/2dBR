@@ -55,6 +55,8 @@ public class Model {
         glBindBuffer(GL_ARRAY_BUFFER,0);
 
 
+
+
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
     }

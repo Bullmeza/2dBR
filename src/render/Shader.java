@@ -38,6 +38,7 @@ public class Shader {
             System.exit(1);
         }
 
+
         glAttachShader(program,vs);
         glAttachShader(program,fs);
 

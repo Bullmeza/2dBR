@@ -1,9 +1,9 @@
 package entity;
 
-import collision.AABBCollision;
-import collision.CheckCollision;
+import collision.AABB;
+import collision.Collision;
+import generate.Tile;
 import generate.World;
-import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import render.Animation;
@@ -12,7 +12,7 @@ import render.Shader;
 import view.Camera;
 import view.Window;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
@@ -21,8 +21,10 @@ public class Player {
     private Model model;
     private Animation texture;
     private Transform transform;
-    private AABBCollision collision_box;
-    private double angle = 0;
+    private AABB bounding_box;
+    private double angle;
+    private int RADIUS = 20;
+    private boolean changedPos;
 
     private int speed = 200;
 
@@ -50,8 +52,9 @@ public class Player {
 
         transform = new Transform();
         transform.scale = new Vector3f(64, 64, 1);
-
-        collision_box = new AABBCollision(new Vector2f(transform.pos.x, transform.pos.y), new Vector2f(1, 1));
+        angle = 0;
+        changedPos = true;
+        bounding_box = new AABB(new Vector2f(transform.pos.x, transform.pos.y), new Vector2f(1, 1));
     }
 
     public void update(float delta, Window window, Camera camera, World world) {
@@ -62,66 +65,50 @@ public class Player {
         angle = anglePos;
 
 
-        if (window.getInput().isKeyDown(GLFW_KEY_W)) {
+        if (window.getInput().isKeyDown(GLFW_KEY_W) && window.getInput().isKeyDown(GLFW_KEY_A)) {
+            transform.pos.add(new Vector3f(speed * (float) Math.cos(angle + Math.toRadians(45)) * delta, speed * (float) Math.sin(angle + Math.toRadians(45)) * delta, 0));
+        } else if (window.getInput().isKeyDown(GLFW_KEY_W) && window.getInput().isKeyDown(GLFW_KEY_D)) {
+            transform.pos.add(new Vector3f(-speed * (float) Math.cos(angle + Math.toRadians(45)) * delta, speed * (float) Math.sin(angle + Math.toRadians(45)) * delta, 0));
+        } else if (window.getInput().isKeyDown(GLFW_KEY_S) && window.getInput().isKeyDown(GLFW_KEY_A)) {
+            transform.pos.add(new Vector3f(speed * (float) Math.cos(angle + Math.toRadians(45)) * delta, -speed * (float) Math.sin(angle + Math.toRadians(45)) * delta, 0));
+        } else if (window.getInput().isKeyDown(GLFW_KEY_S) && window.getInput().isKeyDown(GLFW_KEY_D)) {
+            transform.pos.add(new Vector3f(-speed * (float) Math.cos(angle + Math.toRadians(45)) * delta, -speed * (float) Math.sin(angle + Math.toRadians(45)) * delta, 0));
+        } else if (window.getInput().isKeyDown(GLFW_KEY_W)) {
             transform.pos.add(new Vector3f(speed * (float) Math.cos(angle) * delta, speed * (float) Math.sin(angle) * delta, 0));
-
-        }
-        if (window.getInput().isKeyDown(GLFW_KEY_S)) {
+        } else if (window.getInput().isKeyDown(GLFW_KEY_S)) {
             transform.pos.add(new Vector3f(-speed * (float) Math.cos(angle) * delta, -speed * (float) Math.sin(angle) * delta, 0));
-
-        } if (window.getInput().isKeyDown(GLFW_KEY_A)) {
-
-            if(angle < 0){
-                transform.pos.add(new Vector3f(-speed * (float) Math.cos(angle + 1.5708 ) * delta, -speed * (float) Math.sin(angle + 1.5708) * delta, 0));
-            }
-            else{
-                transform.pos.add(new Vector3f(speed * (float) Math.cos(angle + 1.5708 ) * delta, speed * (float) Math.sin(angle + 1.5708) * delta, 0));
-            }
-
-        } if (window.getInput().isKeyDown(GLFW_KEY_D)) {
-            if(angle < 0){
-                transform.pos.add(new Vector3f(speed * (float) Math.cos(angle + 1.5708 ) * delta, speed * (float) Math.sin(angle + 1.5708) * delta, 0));
-            }
-            else{
-                transform.pos.add(new Vector3f(-speed * (float) Math.cos(angle + 1.5708 ) * delta, -speed * (float) Math.sin(angle + 1.5708) * delta, 0));
-            }
-
+        } else if (window.getInput().isKeyDown(GLFW_KEY_A)) {
+            transform.pos.add(new Vector3f(speed * (float) Math.cos(angle + Math.toRadians(90)) * delta, speed * (float) Math.sin(angle + Math.toRadians(90)) * delta, 0));
+        } else if (window.getInput().isKeyDown(GLFW_KEY_D)) {
+            transform.pos.add(new Vector3f(-speed * (float) Math.cos(angle + Math.toRadians(90)) * delta, -speed * (float) Math.sin(angle + Math.toRadians(90)) * delta, 0));
         }
 
 
-        collision_box.getCenter().set(transform.pos.x, transform.pos.y);
+        camera.setPosition(transform.pos.mul(-1, new Vector3f()));
+        bounding_box.getCenter().set(transform.pos.x / world.getScale(), transform.pos.y / world.getScale());
 
-        AABBCollision[] boxes = new AABBCollision[25];
 
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                boxes[i + j * 5] = world.getTileCollisionBox((int) (((transform.pos.x / 2) + 0.5f) - (5 / 2) + i), (int) (((-transform.pos.y / 2) + 0.5f) - (5 / 2) + j));
-            }
-        }
-        AABBCollision box = null;
-        for (int i = 0; i < boxes.length; i++) {
-            if (boxes[i] != null) {
-                if (box == null) {
-                    box = boxes[i];
+        for (int i = -RADIUS; i <= RADIUS; i++) {
+            for (int j = -RADIUS; j <= RADIUS; j++) {
+                int x = Math.round(transform.pos.x / world.getScale()) + i;
+                int y = Math.round(transform.pos.y/world.getScale()) + j;
+                AABB tile = world.getTileCollisionBox(x, y);
+//                System.out.println(x + " " + y);
 
-                    Vector2f length1 = box.getCenter().sub(transform.pos.x, transform.pos.y, new Vector2f());
-                    Vector2f length2 = boxes[i].getCenter().sub(transform.pos.x, transform.pos.y, new Vector2f());
-
-                    if (length1.lengthSquared() > length2.lengthSquared()) {
-                        box = boxes[i];
+                if (tile != null) {
+                    while (bounding_box.getCollision(tile).isIntersecting) {
+                        System.out.println(x + " " + y);
+                        Vector2f fix = bounding_box.correctPosition(tile, bounding_box.getCollision(tile));
+                        transform.pos.x -= fix.x;
+                        transform.pos.y -= fix.y;
+                        bounding_box.getCenter().set(transform.pos.x / world.getScale(), transform.pos.y / world.getScale());
                     }
                 }
+
             }
         }
 
-        if (box != null) {
-            CheckCollision data = collision_box.getCollision(box);
-            if (data.isIntersecting) {
-                collision_box.correctPosition(box, data);
-                transform.pos.set(collision_box.getCenter(), 0);
-            }
-        }
-        camera.setPosition(transform.pos.mul(-1, new Vector3f()));
+
     }
 
     public void render(Shader shader, Camera camera) {
