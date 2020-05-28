@@ -8,7 +8,7 @@ import java.net.http.HttpResponse;
 
 public class MazeReq {
 
-    public static void createMap(int size){
+    public static String createMap(int size){
         try{
             String url = "http://localhost:8888/createMap?size=";
 
@@ -19,6 +19,8 @@ public class MazeReq {
 
             HttpResponse<String> response = client.send(request,
                     HttpResponse.BodyHandlers.ofString());
+
+            return response.body();
         }
         catch(IOException e) {
             System.out.println("SERVERS DOWN");
@@ -29,6 +31,7 @@ public class MazeReq {
             System.exit(1);
 
         }
+        return null;
     }
 
 

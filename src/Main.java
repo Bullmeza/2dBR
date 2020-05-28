@@ -1,9 +1,11 @@
 import collision.AABB;
+import entity.Bullet;
 import entity.Player;
 import generate.Tile;
 import generate.TileRender;
 import generate.World;
 import multiplayer.MazeReq;
+import org.joml.Random;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL;
@@ -21,7 +23,6 @@ public class Main {
 
 
     public Main() {
-
 
 
         if (!glfwInit()) {
@@ -44,6 +45,19 @@ public class Main {
         World world = new World();
         MazeReq mazeReq = new MazeReq();
         Player player = new Player();
+
+        String id = mazeReq.createMap(world.getWidth());
+        System.out.println(id);
+
+        Random rand = new Random();
+
+        int randX = rand.nextInt(world.getWidth() - 2) + 1;
+        int randY = rand.nextInt(world.getHeight() - 2) + 1;
+
+
+        player.move(new Vector2f(randX, -randY), world);
+
+
 
 
         double frame_cap = 1.0 / 60.0;
@@ -74,8 +88,6 @@ public class Main {
                 }
 
 
-
-
                 //LEFT CLICK
                 if (window.getInput().isMouseButtonDown(0)) {
                 }
@@ -102,7 +114,6 @@ public class Main {
 
                 world.render(tiles, shader, camera);
                 if (!maze_loaded) {
-                    mazeReq.createMap(world.getWidth());
 
 
 
@@ -118,7 +129,10 @@ public class Main {
                     maze_loaded = true;
                 }
 
-                    player.render(shader, camera);
+
+
+                player.render(shader, camera);
+
 
 
                 glEnd();
