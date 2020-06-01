@@ -1,6 +1,12 @@
 package entity;
 
+//Robert Muresan
+//2020/05/31
+//2D Battle Royale
+//Play with friends on a server/localhost
+
 import collision.AABB;
+import multiplayer.MazeReq;
 import render.FPS;
 import generate.World;
 import org.joml.Vector2f;
@@ -21,13 +27,14 @@ public class Player {
     private Transform transform;
     private AABB bounding_box;
     private double angle;
-    private int RADIUS = 30;
+    private int RADIUS = 3;
     private int speed = 200;
     private ArrayList<Bullet> bullets;
     private FPS timer;
     private double last_shot = 0;
-    private double last_reload = 0;
     private int shots = 0;
+    private int player_id;
+    private int health = 5;
 
 
     public Player() {
@@ -84,26 +91,54 @@ public class Player {
             transform.pos.add(new Vector3f(-speed * (float) Math.cos(angle + Math.toRadians(90)) * delta, -speed * (float) Math.sin(angle + Math.toRadians(90)) * delta, 0));
         }
         if (window.getInput().isMouseButtonDown(0)) {
-            if(shots == 20){
+            if(shots == 15){
                 last_shot += 2.5;
                 shots = 0;
-                texture = new Animation(20, (int) (20/2.5), "reload/survivor-reload_rifle");
+                texture = new Animation(20, (int) (15/2.5), "reload/survivor-reload_rifle");
             }
-            if(FPS.getTime()-last_shot > 0.25) {
+            if(FPS.getTime()-last_shot > 0.33) {
                 if(shots == 0){
                     texture = new Animation(20, 20, "move/survivor-move_rifle");
                 }
-                bullets.add(new Bullet(mousePos, transform.pos));
+
+                bullets.add(new Bullet(mousePos, transform.pos, player_id));
+                MazeReq.bulletWrite(player_id, transform.pos.x, transform.pos.y, angle);
+
                 last_shot = FPS.getTime();
                 shots++;
             }
         }
         for(int i = 0; i < bullets.size(); i++){
-                bullets.get(i).updateBullet(delta, world);
+            Bullet current = bullets.get(i);
+
+
+            if(current.getBounding_box().getCollision(bounding_box).isIntersecting && current.getPlayer_shot_id() != player_id){
+                health--;
+                System.out.println(health);
+                if(health == 0){
+                    System.out.println("DEAD");
+                    System.exit(1);
+                }
+                current.setHit_wall();
+            }
+                current.updateBullet(delta, world);
+
+                int[] x_pos = current.getTilePosX(world);
+                int[] y_pos = current.getTilePosY(world);
+
+
+                for(int x = 0; x < 2; x++){
+                    for(int y = 0; y < 2; y++){
+//                        System.out.println(x_pos[x] + " " + y_pos[y]);
+                        AABB tile = world.getTileCollisionBox(x_pos[x], y_pos[y]);
+                        if(tile != null){
+                            if(current.getBounding_box().getCollision(tile).isIntersecting){
+                                current.setHit_wall();
+                            }
+                        }
+                    }
+                }
         }
-        System.out.println(bullets.size());
-
-
 
 
         camera.setPosition(transform.pos.mul(-1, new Vector3f()));
@@ -111,12 +146,11 @@ public class Player {
 
 
 
-        for (int i = 0; i <= RADIUS; i++) {
+        for (int i = -RADIUS; i <= RADIUS; i++) {
             for (int j = -RADIUS; j <= RADIUS; j++) {
-                AABB tile = world.getTileCollisionBox(i, j);
+                AABB tile = world.getTileCollisionBox((int) (i+Math.abs(transform.pos.x/world.getScale()/2)), (int) (j+Math.abs(transform.pos.y/world.getScale()/2)));
              if (tile != null) {
                     while (bounding_box.getCollision(tile).isIntersecting) {
-
                         Vector2f fix = bounding_box.correctPosition(tile, bounding_box.getCollision(tile));
                         transform.pos.x -= fix.x;
                         transform.pos.y -= fix.y;
@@ -126,25 +160,6 @@ public class Player {
 
             }
         }
-//        for (int i = -5; i <= RADIUS; i++) {
-//            for (int j = 5; j >= -RADIUS; j--) {
-//
-//                AABB tile = world.getTileCollisionBox(i, j);
-//
-//                if (tile != null) {
-//                    System.out.println(i + " " + j);
-//                    while (bounding_box.getCollision(tile).isIntersecting) {
-//                        Vector2f fix = bounding_box.correctPosition(tile, bounding_box.getCollision(tile));
-//                        transform.pos.x -= fix.x;
-//                        transform.pos.y -= fix.y;
-//                        bounding_box.getCenter().set(transform.pos.x / world.getScale(), transform.pos.y / world.getScale());
-//                    }
-//                }
-//
-//            }
-//        }
-
-
     }
 
     public void render(Shader shader, Camera camera) {
@@ -159,11 +174,40 @@ public class Player {
                 bullets.remove(i);
                 continue;
             }
+            else if(bullets.get(i).getHit_wall()){
+                bullets.get(i).unrender(shader,camera);
+                bullets.remove(i);
+                continue;
+            }
             bullets.get(i).render(shader, camera);
         }
+    }
+    public void unrender(Shader shader, Camera camera) {
+        texture.delete();
     }
 
     public void move(Vector2f newPos, World world) {
         transform.pos = (new Vector3f(newPos.x * world.getScale(), newPos.y * world.getScale(), 1));
+    }
+    public void move(Vector2f newPos, World world, double new_angle) {
+        transform.pos = (new Vector3f(newPos.x * world.getScale(), newPos.y * world.getScale(), 1));
+        angle = new_angle;
+    }
+    public void setPlayer_id(int new_id){
+        player_id = new_id;
+    }
+    public int getPlayer_id(){
+        return player_id;
+    }
+
+    public Vector2f getPlayerPosition(){
+        return new Vector2f(transform.pos.x, transform.pos.y);
+    }
+    public double getAngle(){
+        return angle;
+    }
+
+    public void addBullet(Bullet bullet){
+        bullets.add(bullet);
     }
 }

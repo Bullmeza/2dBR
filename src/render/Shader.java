@@ -1,4 +1,10 @@
 package render;
+
+//Robert Muresan
+//2020/05/31
+//2D Battle Royale
+//Play with friends on a server/localhost
+
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 

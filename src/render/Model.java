@@ -1,5 +1,10 @@
 package render;
 
+//Robert Muresan
+//2020/05/31
+//2D Battle Royale
+//Play with friends on a server/localhost
+
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;

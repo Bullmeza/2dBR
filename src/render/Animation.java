@@ -41,4 +41,9 @@ public class Animation {
 
         frames[texturePointer].bind(sampler);
     }
+    public void delete(){
+        for(int i = 0; i < frames.length; i++){
+            frames[i].delete();
+        }
+    }
 }

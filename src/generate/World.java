@@ -1,5 +1,10 @@
 package generate;
 
+//Robert Muresan
+//2020/05/31
+//2D Battle Royale
+//Play with friends on a server/localhost
+
 import collision.AABB;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -7,7 +12,6 @@ import org.joml.Vector3f;
 import view.Camera;
 import render.Shader;
 
-import java.util.Collections;
 
 public class World {
     private byte[] tiles;
@@ -16,13 +20,18 @@ public class World {
     private int width;
     private int height;
     private int scale;
+    private int viewX;
+    private int viewY;
 
     private Matrix4f world;
 
     public World() {
-        width =20;
+        width =10;
         height = width;
         scale = 64;
+
+        viewX = 11;
+        viewY= viewX;
 
         tiles = new byte[width * height];
         collision_boxes = new AABB[width * height];
@@ -32,9 +41,14 @@ public class World {
     }
 
     public void render(TileRender render, Shader shader, Camera cam) {
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                render.renderTile(tiles[j + i * width], j, -i, shader, world, cam);
+
+        int posX = (int) cam.getPosition().x / (scale * 2);
+        int posY = (int) cam.getPosition().y / (scale * 2);
+
+        for (int i = 0; i < viewX+3; i++) {
+            for (int j = 0; j < viewY+2; j++) {
+                Tile t = getTile(i - posX - (viewX / 2) + 1, j + posY - (viewY / 2));
+                if (t != null) render.renderTile(t, i - posX - (viewX / 2) + 1, -j - posY + (viewY / 2), shader, world, cam);
             }
         }
     }

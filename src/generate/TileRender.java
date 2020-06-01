@@ -1,5 +1,10 @@
 package generate;
 
+//Robert Muresan
+//2020/05/31
+//2D Battle Royale
+//Play with friends on a server/localhost
+
 import java.util.HashMap;
 
 import org.joml.Matrix4f;
@@ -50,16 +55,11 @@ public class TileRender {
         }
     }
 
-    public void renderTile(byte id, int x, int y, Shader shader, Matrix4f world, Camera cam) {
+    public void renderTile(Tile tile, int x, int y, Shader shader, Matrix4f world, Camera cam) {
         shader.bind();
-        if(Tile.tiles[id] != null){
-            if (tileTextures.containsKey(Tile.tiles[id].getTexture())) {
-                tileTextures.get(Tile.tiles[id].getTexture()).bind(0);
-            }
-        }
+        if (tileTextures.containsKey(tile.getTexture())) tileTextures.get(tile.getTexture()).bind(0);
 
-
-        Matrix4f tile_pos = new Matrix4f().translate(new Vector3f(x*2, y*2, 0));
+        Matrix4f tile_pos = new Matrix4f().translate(new Vector3f(x * 2, y * 2, 0));
         Matrix4f target = new Matrix4f();
 
         cam.getProjection().mul(world, target);

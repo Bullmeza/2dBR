@@ -1,5 +1,10 @@
 package generate;
 
+//Robert Muresan
+//2020/05/31
+//2D Battle Royale
+//Play with friends on a server/localhost
+
 public class Tile {
     public static Tile tiles[] = new Tile[16];
     public static final Tile grass = new Tile((byte) 0, "grass");
